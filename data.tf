@@ -1,0 +1,45 @@
+# Retrieves the information from the remote vpc state file
+data "terraform_remote_state" "vpc" {
+  backend = "s3"
+  config = {
+    bucket = "b53-tfstatebucket"
+    key    = "vpc/${var.ENV}/terraform.tfstate"
+    region = "us-east-1"
+   }
+}
+
+# Retrieves the information from the remote vpc alb file
+data "terraform_remote_state" "alb" {
+  backend = "s3"
+  config = {
+    bucket = "b53-tfstatebucket"
+    key    = "alb/${var.ENV}/terraform.tfstate"
+    region = "us-east-1"
+   }
+}
+
+# Retrieves the information from the remote DB file
+data "terraform_remote_state" "db" {
+  backend = "s3"
+  config = {
+    bucket = "b53-tfstatebucket"
+    key    = "databases/${var.ENV}/terraform.tfstate"
+    region = "us-east-1"
+   }
+}
+
+# Fetches the information of the LAB AMI
+data "aws_ami" "ami" {
+  most_recent      = true
+  name_regex       = "Lab-Ami-With-Ansible_Installed"
+  owners           = ["self"] 
+}
+
+# Fetches the metadata and the version of the secret
+data "aws_secretsmanager_secret" "secrets" {
+   name   =  "roboshop/secrets"
+}
+
+data "aws_secretsmanager_secret_version" "secrets" {
+  secret_id     = data.aws_secretsmanager_secret.secrets.id
+}
